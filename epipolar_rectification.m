@@ -8,20 +8,16 @@ function []=epipolar_rectification(img1,img2, F, e2, pts1, pts2)
 
 % Step 2: Compute the rectifying transform H_2 for the second view from
 % equation (11.29)
-% this function needs work!
 o=size(img1)./2;
 ox = o(2);
 oy = o(1);
 Gt=eye(3);
-%Gt1=Gt;
 Gt(1,3)= -o(1); Gt(2,3)=-o(2);
 
 theta = atan((oy - e2(2))/(e2(1) - ox));
-%theta=atan(e2(2)/e2(1));
 Gr=[ cos(theta) -sin(theta) 0; sin(theta) cos(theta) 0; 0 0 1];
 G=eye(3);
 x_e = e2(1)*cos(theta) - e2(2)*sin(theta) - ox*cos(theta) + oy*sin(theta);
-% ex=e2(1)*cos(theta) + e2(2)*sin(theta);
 G(3,1)=-1/x_e;
 H2=G*Gr*Gt;
 %% Finding H
@@ -30,8 +26,6 @@ T_hat= skew_symm(e2);
 A = [];
 b = [];
 
-% why are you working with c1 and c2? Shouldn't you be working with x1 and
-% x2?
 for i = 1:size(pts2, 2)
   A_curr = skew_symm(pts2(:,i))*T*pts1(:,i)';
   b_curr  = -skew_symm(pts2(:,i))*T_hat*F*pts1(:,i);
@@ -41,7 +35,6 @@ end
 v = A\b;
 H = T_hat*F + T*v';
  %%
-% H=lsquares(F,c);%performs least squares
 H1=H2*H;
 
 [xin yin]= meshgrid(1:size(img1, 2), 1:size(img1, 1));
